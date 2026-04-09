@@ -1,0 +1,65 @@
+vehicles[icon: car, color: Red]{
+  id serial pk
+  vehicle_category int fk
+  owner_name string
+  vehicle_no string not null
+  
+  createdAt timestamp
+}
+
+vehicle_categories [icon: folder, color: Black]{
+  id serial pk
+  category string unique
+  base_fee_per_hour int
+}
+
+parking_spots[color: Green] {
+  spot_no int 
+  zone enum[Basement A, Ground Floor, Stilt Parking]
+  spot_id unique(zone,spot_no) pk
+  spot_for_vehicle_category_id int fk
+
+  reserved_for enum[cosplayers,VIP,exhibitors,staff, general]
+  is_occupied boolean defalt false
+}
+
+parking_tickets[color: Blue] {
+  id serial pk
+  vehicle_id int fk
+  spot_id int fk
+
+  createdAt timestamp
+}
+
+parking_sessions[color: Orange] {
+  id serial pk
+  ticket_id int fk
+  vehicle_id fk
+  entry_time timestamp
+  exist_time timestamp
+  total_charges decimal(10,2)
+
+  createdAt timestamp
+}
+
+payments[color: Green] {
+  id serial pk
+  session_id fk
+  payment_mode enum[cod,upi,card]
+  payment_status enum[pending,completed,failed]
+  transaction_ref string
+
+  createdAt timestamp
+} 
+
+vehicles.vehicle_category > vehicle_categories.id: [color: red]
+
+parking_spots.spot_for_vehicle_category_id > vehicle_categories.id: [color: green]
+
+parking_tickets.vehicle_id > vehicles.id: [color: "#3c3cc4"]
+parking_tickets.spot_id > parking_spots.spot_id: [color: "#3c3cc4"]
+ 
+parking_sessions.ticket_id - parking_tickets.id: [color: orange]
+parking_sessions.vehicle_id > vehicles.id: [color: orange]
+
+payments.session_id - parking_sessions.id: [color: green]
